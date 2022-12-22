@@ -1,0 +1,3 @@
+class AudioPlayerState {
+  AudioPlayerState();
+}
