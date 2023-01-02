@@ -12,7 +12,7 @@ class RadioAudioPlayerView extends StatefulWidget {
   }
 
   RadioAudioPlayerView(this.radios, this._index, {super.key}) {
-    radioPlayer.setChannel(title: currentRadio.name, url: currentRadio.url);
+    //radioPlayer.setChannel(title: currentRadio.name, url: currentRadio.url);
   }
   @override
   State<RadioAudioPlayerView> createState() => _RadioAudioPlayerViewState();
@@ -20,10 +20,11 @@ class RadioAudioPlayerView extends StatefulWidget {
 
 class _RadioAudioPlayerViewState extends State<RadioAudioPlayerView> {
   late Future initFuture;
-  bool playing = true;
+  bool playing = false;
   List<RadioModel> get radios => widget.radios;
   RadioModel get currentRadio => widget.currentRadio;
   RadioPlayer get radioPlayer => widget.radioPlayer;
+  NetworkImage get currentImage => NetworkImage(currentRadio.image);
   set setIndex(newindex) {
     widget.index = newindex;
   }
@@ -32,6 +33,15 @@ class _RadioAudioPlayerViewState extends State<RadioAudioPlayerView> {
   @override
   void initState() {
     super.initState();
+    radioPlayer.setChannel(
+        title: currentRadio.name,
+        url: currentRadio.url,
+        imagePath: currentRadio.image);
+    radioPlayer.stateStream.listen((value) {
+      setState(() {
+        playing = value;
+      });
+    });
   }
 
   @override
@@ -87,10 +97,7 @@ class _RadioAudioPlayerViewState extends State<RadioAudioPlayerView> {
                                             MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
-                                        children: [
-                                          // displaySlider(),
-                                          displayButtons()
-                                        ],
+                                        children: [displayButtons()],
                                       ),
                                     ),
                                   ),
@@ -133,8 +140,7 @@ class _RadioAudioPlayerViewState extends State<RadioAudioPlayerView> {
           height: 220,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              image: DecorationImage(
-                  image: NetworkImage(currentRadio.image), fit: BoxFit.cover)),
+              image: DecorationImage(image: currentImage, fit: BoxFit.cover)),
         ),
       ),
     );
@@ -167,7 +173,8 @@ class _RadioAudioPlayerViewState extends State<RadioAudioPlayerView> {
               priviousRadio();
               radioPlayer.setChannel(
                   title: currentRadio.name, url: currentRadio.url);
-              radioPlayer.play();
+              radioPlayer.pause();
+              playing = false;
               setState(() {});
             },
             icon: const Icon(Icons.skip_previous)),
@@ -189,10 +196,13 @@ class _RadioAudioPlayerViewState extends State<RadioAudioPlayerView> {
             iconSize: 45,
             color: Colors.grey,
             onPressed: () async {
-              // radioPlayer.stop();
+              radioPlayer.stop();
               nextRadio();
               radioPlayer.setChannel(
                   title: currentRadio.name, url: currentRadio.url);
+
+              radioPlayer.pause();
+              playing = false;
               setState(() {});
             },
             icon: const Icon(Icons.skip_next)),

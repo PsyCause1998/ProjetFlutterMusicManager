@@ -169,6 +169,13 @@ class _HomePageState extends State<HomePage> {
                         artistlists.remove(artistDeleted);
                       });
                     }
+                    if (selection.trim() == '') {
+                      await getArtits();
+                      setState(() {});
+                    } else {
+                      getArtistByName(selection);
+                      setState(() {});
+                    }
                   }
                   if (list[index].getTypes() is Album) {
                     print('${list[index].getName()}');
@@ -198,14 +205,16 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.all(2.0),
       child: FloatingActionButton(
         onPressed: () async {
-          await Navigator.push(context,
+          bool canceled = await Navigator.push(context,
               MaterialPageRoute(builder: (context) => const AddArtistView()));
-          setState(() {
-            if (selection == "") {
+          if (canceled) {
+          } else {
+            if (selection.trim() == "") {
               getArtits();
+            } else {
+              getArtistByName(selection);
             }
-            getArtistByName(selection);
-          });
+          }
         },
         backgroundColor: Colors.blue,
         child: const Icon(

@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:music_manager/controllers/audio_player_controller.dart';
 import 'package:music_manager/pages/home_page.dart';
 
 late AudioHandler _audioHandler;
-Future<void> main() async {
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -26,4 +26,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

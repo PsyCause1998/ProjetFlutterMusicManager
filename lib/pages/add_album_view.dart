@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:music_manager/controllers/db_acces_controller.dart';
+import 'package:music_manager/models/album.dart';
 import 'package:music_manager/models/artist.dart';
 
-class AddArtistView extends StatefulWidget {
-  const AddArtistView({super.key});
+import '../controllers/db_acces_controller.dart';
+
+class AddAlbumView extends StatefulWidget {
+  final Artist _artist;
+  const AddAlbumView(this._artist, {super.key});
 
   @override
-  State<AddArtistView> createState() => _AddArtistViewState();
+  State<AddAlbumView> createState() => _AddAlbumViewState();
 }
 
-class _AddArtistViewState extends State<AddArtistView> {
-  late Artist artistToCreate;
-  late String name = "";
-  late bool exist = false;
-  late List<Artist> artists = [];
+class _AddAlbumViewState extends State<AddAlbumView> {
+  String title = "";
+  bool exist = true;
   final _formKey = GlobalKey<FormState>();
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add An Artist')),
+      appBar: AppBar(title: const Text('Add Album')),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -30,25 +34,24 @@ class _AddArtistViewState extends State<AddArtistView> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Text(
-                  'Artist Name:',
+                  'Album Title:',
                   style: TextStyle(fontSize: 20),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
                     validator: (value) {
-                      print(value.toString());
-                      if (name.isEmpty) {
+                      if (value.toString().isEmpty) {
                         return 'Please enter some text';
                       }
                       if (exist) {
-                        return 'Artist name already exist';
+                        return ' Album already exist';
                       } else {
                         return null;
                       }
                     },
                     onChanged: (value) {
-                      name = value;
+                      title = value;
                     },
                   ),
                 ),
@@ -67,21 +70,21 @@ class _AddArtistViewState extends State<AddArtistView> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              exist = await existArtist(name);
+              exist = await existAlbumforAtist(title, widget._artist);
               print(exist);
               if (_formKey.currentState!.validate()) {
-                await DbAccesController().addArtist(Artist(id: 0, name: name));
+                await DbAccesController().addAlbumToArtist(
+                    widget._artist, Album(0, title, widget._artist.id));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Artist correctly added'),
+                    content: Text('Album correctly added'),
                   ),
                 );
                 Navigator.pop(context, false);
-                setState(() {});
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Artist not added'),
+                    content: Text('Album not added'),
                   ),
                 );
               }
@@ -96,15 +99,13 @@ class _AddArtistViewState extends State<AddArtistView> {
     );
   }
 
-  Future<void> getArtistSameName(String name) async {
-    artists = await DbAccesController().fetchArtistByName(name);
-  }
-
-  Future<bool> existArtist(String name) async {
-    artists = await DbAccesController().fetchArtistByName(name);
-    return artists
-        .where((artist) => artist.name.toLowerCase() == name.toLowerCase())
-        .toList()
-        .isNotEmpty;
+  Future<bool> existAlbumforAtist(String title, Artist artist) async {
+    List<Album> list = await DbAccesController().fetchAlbumFromArtist(artist);
+    for (Album album in list) {
+      if (album.title.toLowerCase() == title.toLowerCase()) {
+        return true;
+      }
+    }
+    return false;
   }
 }

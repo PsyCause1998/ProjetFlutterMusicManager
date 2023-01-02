@@ -161,6 +161,24 @@ class DbAccesController {
     }
   }
 
+  Future<void> updateArtist(Artist artist, String name) async {
+    try {
+      var url = Uri.parse('http://$host:3000/api/artist=${artist.id}');
+      dynamic response = await http.patch(url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            'id': artist.id.toString(),
+            'name': name,
+          }));
+      print(response.body);
+    } on Exception catch (_) {
+      print('throw connexion API error');
+      throw Exception('Connexion API Error');
+    }
+  }
+
   Future<List<RadioModel>> fecthRadios() async {
     try {
       var url = Uri.parse('http://$host:3000/api/radios');
@@ -179,9 +197,36 @@ class DbAccesController {
     }
   }
 
-  deleteArtist(Artist artist) {
+  Future<void> deleteArtist(Artist artist) async {
     try {
       var url = Uri.parse('http://$host:3000/api/artist=${artist.id}');
+      http.delete(url);
+    } on Exception catch (_) {
+      print('throw connexion API error');
+      throw Exception('Connexion API Error');
+    }
+  }
+
+  Future<void> addAlbumToArtist(Artist artist, Album album) async {
+    try {
+      var url = Uri.parse('http://$host:3000/api/album');
+      http.post(url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            'artistId': artist.id.toString(),
+            'title': album.title,
+          }));
+    } on Exception catch (_) {
+      print('throw connexion API error');
+      throw Exception('Connexion API Error');
+    }
+  }
+
+  Future<void> deleteAlbum(Album albumsList) async {
+    try {
+      var url = Uri.parse('http://$host:3000/api/album=${albumsList.id}');
       http.delete(url);
     } on Exception catch (_) {
       print('throw connexion API error');
