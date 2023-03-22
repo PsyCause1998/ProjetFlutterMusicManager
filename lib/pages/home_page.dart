@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onTap: () async {
                   if (list[index].getTypes() is Artist) {
-                    Artist artistDeleted = await Navigator.push(
+                    Artist? artistDeleted = await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
